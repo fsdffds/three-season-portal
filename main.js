@@ -3,13 +3,15 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { petalAnimate, SpringScene } from './springScene';
 import { SummerScene } from './summerScene';
+import { FallScene } from './fallScene';
+import { winterAnimate, WinterScene } from './assets/winterScene';
 
 // 기본 scene, camera, renderer 설정
 const h_scr = window.innerWidth;
 const v_scr = window.innerHeight;
 const homeScene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, h_scr / v_scr, 0.1, 1000);
-camera.position.z = 5;
+camera.position.set(7, 9, 0)
 
 const renderer = new THREE.WebGLRenderer();
 document.body.appendChild(renderer.domElement);
@@ -29,13 +31,16 @@ const springScene = new THREE.Scene();
 SpringScene(springScene);
 const summerScene = new THREE.Scene();
 SummerScene(summerScene);
-const autumnScene = new THREE.Scene();
+const fallScene = new THREE.Scene();
+FallScene(fallScene)
 const winterScene = new THREE.Scene();
+let winterSceneData;
+winterSceneData = WinterScene(winterScene);
 
 // springScene.background = new THREE.Color(0xFFFFFF);
-summerScene.background = new THREE.Color(0x3399ff);
-autumnScene.background = new THREE.Color(0xffaa33);
-winterScene.background = new THREE.Color(0xeeeeee);
+summerScene.background = new THREE.Color(0x87CEEB);
+fallScene.background = new THREE.Color(0x333355);
+winterScene.background = new THREE.Color(0xcce0ff);
 
 let currentScene = homeScene;
 
@@ -98,7 +103,7 @@ const onMouseClick = (e) => {
       currentScene = springScene;
     } else if (clickedDoor === backDoor) {
       console.log('Back Door (Autumn) clicked!');
-      currentScene = autumnScene;
+      currentScene = fallScene;
     } else if (clickedDoor === rightDoor) {
       console.log('Right Door (Summer) clicked!');
       currentScene = summerScene;
@@ -116,7 +121,16 @@ window.addEventListener('click', onMouseClick);
 
 function animate() {
   controls.update();
-  if (currentScene == springScene) petalAnimate();
+  switch (currentScene){
+    case springScene:
+      petalAnimate();
+      break;
+
+    case winterScene:
+      winterAnimate(winterSceneData, 10);
+      break;
+  }
+  renderer.shadowMap.enabled = true;
   renderer.render(currentScene, camera);
 }
 

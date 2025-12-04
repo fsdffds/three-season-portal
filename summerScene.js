@@ -11,7 +11,7 @@ export function SummerScene(scene) {
   // 모래사장
   const sandGeometry = new THREE.BoxGeometry(7, thickness, planeSize, 20, 1, 20);
   
-  const sandMaterial = new THREE.MeshPhongMaterial({
+  const sandMaterial = new THREE.MeshStandardMaterial({
     color: 0xedcdaf,
     flatShading: true,
   });
