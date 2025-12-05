@@ -8,12 +8,37 @@ export function SummerScene(scene) {
   
   const thickness = 1.5;
 
+  // 태양
+  const sunGeometry = new THREE.SphereGeometry(0.5);
+  const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffdd55 });
+  const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+  sun.position.set(-2, 7, 7);
+  sun.castShadow = false;
+  scene.add(sun);
+
+  const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
+  sunLight.position.set(0, 0, 0);
+  sunLight.castShadow = true; 
+  sun.add(sunLight);
+
+  // 그림자
+  sunLight.shadow.mapSize.width = 2048;
+  sunLight.shadow.mapSize.height = 2048;
+  sunLight.shadow.camera.near = 0.5;
+  sunLight.shadow.camera.far = 50;
+  sunLight.shadow.camera.left = -15;
+  sunLight.shadow.camera.right = 15;
+  sunLight.shadow.camera.top = 15;
+  sunLight.shadow.camera.bottom = -15;
+
   // 모래사장
   const sandGeometry = new THREE.BoxGeometry(7, thickness, planeSize, 20, 1, 20);
-  
+  const sandTexture = new THREE.TextureLoader().load('./assets/texture/sand.jpg');
   const sandMaterial = new THREE.MeshStandardMaterial({
     color: 0xedcdaf,
     flatShading: true,
+    side: THREE.DoubleSide,
+    map: sandTexture
   });
   
   // 울퉁불퉁하게
@@ -23,7 +48,7 @@ export function SummerScene(scene) {
     const y = sandPos.getY(i);
 
     if (y > 0) { 
-      sandPos.setY(i, y + (Math.random() - 0.5) * 0.3);
+      sandPos.setY(i, y + (Math.random() - 0.5) * 0.15);
     }
   }
   // 그림자 다시 계산
@@ -39,7 +64,7 @@ export function SummerScene(scene) {
   // 야자 나무
   const loader = new GLTFLoader();
   loader.load(
-    './assets/palm_tree.glb',
+    './assets/glb/palm_tree.glb',
     (gltf) => {
       const tree1 = gltf.scene;
 
@@ -65,7 +90,7 @@ export function SummerScene(scene) {
 
   // 조개껍데기
   loader.load(
-    './assets/seashell.glb',
+    './assets/glb/seashell.glb',
     (gltf) => {
       const seashell1 = gltf.scene;
 
@@ -93,7 +118,7 @@ export function SummerScene(scene) {
 
   // 비치볼
   loader.load(
-    './assets/beach_ball.glb',
+    './assets/glb/beach_ball.glb',
     (gltf) => {
       const ball = gltf.scene;
 
@@ -112,7 +137,7 @@ export function SummerScene(scene) {
 
   // 의자
   loader.load(
-    './assets/deck_chair.glb',
+    './assets/glb/deck_chair.glb',
     (gltf) => {
       const chair1 = gltf.scene;
 
@@ -138,7 +163,7 @@ export function SummerScene(scene) {
 
   // 집
   loader.load(
-    './assets/summer_house.glb',
+    './assets/glb/summer_house.glb',
     (gltf) => {
       const house = gltf.scene;
 
@@ -159,13 +184,15 @@ export function SummerScene(scene) {
 
   // 바다 
   const waterGeometry = new THREE.BoxGeometry(3, thickness, planeSize, 15, 1, 15);
-  
-  const waterMaterial = new THREE.MeshPhongMaterial({
+  const waterTexture = new THREE.TextureLoader().load('./assets/texture/ocean_wave.jpg');
+  const waterMaterial = new THREE.MeshStandardMaterial({
     color: 0x6aaed6,
     shininess: 150,
     flatShading: true,
     transparent: true,
-    opacity: 0.9,
+    opacity: 0.85,
+    map: waterTexture,
+    side: THREE.DoubleSide
   });
 
   // 파도
@@ -189,7 +216,7 @@ export function SummerScene(scene) {
 
   // 바위
   const rockGeometry = new THREE.DodecahedronGeometry(0.5, 0);
-  const rockMaterial = new THREE.MeshPhongMaterial({
+  const rockMaterial = new THREE.MeshStandardMaterial({
     color: 0x888888,
     flatShading: true,
   })
@@ -210,20 +237,6 @@ export function SummerScene(scene) {
   scene.add(rock2);
 
   // 조명
-  const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
-  sunLight.position.set(10, 20, 10);
-  sunLight.castShadow = true; 
-  scene.add(sunLight);
-
-  sunLight.shadow.mapSize.width = 2048;
-  sunLight.shadow.mapSize.height = 2048;
-  sunLight.shadow.camera.near = 0.5;
-  sunLight.shadow.camera.far = 50;
-  sunLight.shadow.camera.left = -15;
-  sunLight.shadow.camera.right = 15;
-  sunLight.shadow.camera.top = 15;
-  sunLight.shadow.camera.bottom = -15;
-  
   const ambient = new THREE.AmbientLight(0xffffff, 0.4);
   scene.add(ambient);
 }

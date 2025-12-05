@@ -4,10 +4,12 @@ import { GLTFLoader } from 'three/examples/jsm/Addons.js';
 export function FallScene(scene) {
   // 흙바닥
   const groundGeometry = new THREE.BoxGeometry(10, 1, 10);
+  const groundTexture = new THREE.TextureLoader().load('./assets/texture/ground.jpg');
   const groundMaterial = new THREE.MeshStandardMaterial({
     color: 0x5d4037,
     roughness: 1.0,
     flatShading: true,
+    map: groundTexture,
   });
   const ground = new THREE.Mesh(groundGeometry, groundMaterial);
   ground.position.y = -0.5;
@@ -15,20 +17,19 @@ export function FallScene(scene) {
   scene.add(ground);
 
   // 길
-  const pathGeometry = new THREE.BoxGeometry(10, 1.1, 3.5);
+  const pathGeometry = new THREE.BoxGeometry(10, 0.05, 3.5);
   const pathMaterial = new THREE.MeshStandardMaterial({ 
     color: 0x8d6e63,
     roughness: 0.8,
   });
   const path = new THREE.Mesh(pathGeometry, pathMaterial);
-  path.position.y = -0.5;
   path.receiveShadow = true;
   scene.add(path);
 
   // 단풍 나무
   const loader = new GLTFLoader();
   loader.load(
-    './assets/maple_tree.glb',
+    './assets/glb/maple_tree.glb',
     (gltf) => {
       // 원본 나무
       const originalTree = gltf.scene;
@@ -104,7 +105,7 @@ export function FallScene(scene) {
 
   // 벤치
     loader.load(
-    './assets/bench.glb',
+    './assets/glb/bench.glb',
     (gltf) => {
       const bench = gltf.scene;
 

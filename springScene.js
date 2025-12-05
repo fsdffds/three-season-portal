@@ -6,45 +6,72 @@ let petalGeometry;
 const petalCount = 1000;
 
 export function SpringScene(scene) {
+  const textureLoader = new THREE.TextureLoader();
+  const loader = new GLTFLoader();
+
+  // 기본 바닥
+  const groundGeometry = new THREE.BoxGeometry(10, 1, 10);
+  const grassTexture = textureLoader.load('./assets/texture/grass.jpg');
+  const groundMaterial = new THREE.MeshStandardMaterial({
+    roughness: 1.0,
+    flatShading: true,
+    map: grassTexture
+  });
+  const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+  ground.position.y = -0.5;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
   // 길
-  const roadGeometry = new THREE.BoxGeometry(2, 0.05, 20);
-  const roadMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
+  const roadGeometry = new THREE.BoxGeometry(10, 0.05, 3);
+  const roadMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x444444,
+    roughness: 0.8,
+  });
   const road = new THREE.Mesh(roadGeometry, roadMaterial);
-  road.position.set(0, -1, 0);
+  road.receiveShadow = true;
   scene.add(road);
 
   // 벚꽃 나무
-  const treePositions = [-3, -2, -1, 0, 1, 2, 3];
-  const trees = [];
-
-  const loader = new GLTFLoader();
   loader.load(
     './assets/sakura-tree/scene.gltf',
     (gltf) => {
-      for (let i = 0; i < treePositions.length; i++) {
-        const tree = gltf.scene.clone();
+      const originalTree = gltf.scene;
+      originalTree.scale.set(0.15, 0.2, 0.15);
+      originalTree.traverse((node) => {
+        if (node.isMesh) {
+          node.castShadow = true;
+          node.receiveShadow = true;
+        }
+      });
 
-        // 길 양 옆 위치
-        const x = i % 2 === 0 ? -2 : 2;
-        const z = -8 + i * 2.5;
+      const sideZ = [3.2, -3.2];
 
-        tree.scale.set(0.15, 0.15, 0.15);
-        tree.position.set(x, -1, z);
-        
-        scene.add(tree);
-        trees.push(tree);
-      }
-    },
-    undefined,
+      const startX = -4;
+      const endX = 4;
+      const stepX = 2;
+
+      sideZ.forEach((z) => {
+        for (let x = startX; x <= endX; x += stepX) {
+          const tree = originalTree.clone();
+          tree.position.set(x, 0, z);
+
+          tree.rotation.y = Math.random() * Math.PI * 2;
+          scene.add(tree);
+        }
+      });
+    }, undefined,
     (error) => console.error(error)
   );
 
   // 빛
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
   scene.add(ambientLight);
 
   const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
   directionalLight.position.set(5, 10, 7);
+  directionalLight.castShadow = true;
+  directionalLight.shadow.mapSize.set(2048, 2048);
   scene.add(directionalLight);
 
   // 벚꽃잎
@@ -53,14 +80,14 @@ export function SpringScene(scene) {
 
   // 벚꽃잎 좌표 (x, y, z)
   for (let i = 0; i < petalCount; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 20;      // x좌표
-    positions[i * 3 + 1] = Math.random() * 10 + 5;      // y좌표
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 20;  // z좌표
+    positions[i * 3] = (Math.random() - 0.5) * 10;      // x좌표
+    positions[i * 3 + 1] = Math.random() * 10 + 2;      // y좌표
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 10;  // z좌표
   }
 
   petalGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
 
-  const petalTexture = new THREE.TextureLoader().load('/assets/sakura-petals.png')
+  const petalTexture = textureLoader.load('/assets/texture/sakura-petals.png')
   const petalMaterial = new THREE.PointsMaterial({
     size: 0.2,
     map: petalTexture,
@@ -79,14 +106,14 @@ export function petalAnimate () {
 
   const pos = petalGeometry.attributes.position;
   for (let i = 0; i < petalCount; i++) {
-    pos.array[i * 3 + 1] -= 0.03;  // y축 아래로
+    pos.array[i * 3 + 1] -= 0.03; // y축 아래로
 
     pos.array[i * 3] += Math.sin(Date.now() * 0.01 + i) * 0.002;
     pos.array[i * 3 + 2] += Math.cos(Date.now() * 0.001 + i) * 0.02; // 흔들림
 
     // 아래로 떨어지면 위로 리셋
-    if (pos.array[i * 3 + 1] < -2) {
-      pos.array[i * 3 + 1] = 10 + Math.random() * 5;
+    if (pos.array[i * 3 + 1] < 0) {
+      pos.array[i * 3 + 1] = 7 + Math.random() * 3;
     }
   }
   pos.needsUpdate = true;
